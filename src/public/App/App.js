@@ -1,4 +1,6 @@
 import * as THREE from '/modules/three.module.js';
+let prevTime = performance.now();
+
 import {
     createScene,
     createLights,
@@ -8,6 +10,7 @@ import {
     createStars,
   } from "/utils/threeUtils.js";
 let camera, scene, renderer, lights, stats, stars
+
 import {createControls, updateControls} from "/utils/Controls.js";
 let controls
 
@@ -19,27 +22,28 @@ import {GridHelper} from "/utils/GridHelper.js";
 let gridHelper
 
 
-import {Element} from "./elements/Element.js";
-let element
+import {Game} from "./Game.js";
+let game
 
-let prevTime = performance.now();
+
 
 
 init();
 animate();
 
 function init() { 
-    renderer = createRenderer(window, document);
     camera = createCamera();
+    renderer = createRenderer(window, camera, document);
     scene = createScene();
     lights = createLights(scene);
     stats = new createStats(document);
-    controls = new createControls('noclip', window, camera, document, renderer);
+    controls = new createControls('orbit', window, camera, document, renderer);
     stars = createStars(scene)
     axesHelper = new AxesHelper(scene)
     gridHelper = new GridHelper(scene)
     
-    element = new Element(scene)
+    
+    game = new Game(scene)
 }
 
 function animate() {
@@ -47,7 +51,7 @@ function animate() {
     const time = performance.now();
     controls.update(time, prevTime)
 
-    element.update()
+    game.update()
 
     renderer.render(scene, camera);
     prevTime = time;

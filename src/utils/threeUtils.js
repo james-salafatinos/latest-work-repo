@@ -3,23 +3,41 @@ import Stats from "/modules/stats.module.js";
 import { GUI } from "/modules/dat.gui.module.js";
 
 
-function createRenderer(window, document) {
+
+
+function createRenderer(window, camera, document) {
   let renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  const container = document.getElementById('threejs');
+  container.appendChild(renderer.domElement);
+  _handleResize(renderer, camera, container);
+  window.addEventListener('resize', () => {
+    _handleResize(renderer, camera, container);
+  });
 
-  document.body.appendChild(renderer.domElement);
   return renderer;
 }
 
-function createCamera() {
+
+function _handleResize(renderer, camera, container) {
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+
+  camera.aspect = containerWidth / containerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(containerWidth, containerHeight);
+}
+
+function createCamera(pos_x = 5, pos_y = 1, pos_z = 1) {
+
   let camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
     1,
     1000
   );
-  camera.position.set(5, 1, 1);
+  camera.position.set(pos_x, pos_y, pos_z);
   return camera;
 }
 
