@@ -5,38 +5,45 @@
 const express = require("express");
 const port = 3000;
 const app = express();
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 app.get("/", function (request, response) {
-  response.send(`
-  <!DOCTYPE html>
-  <html>
-  <head>
-      <title></title>
-      <style>
-      body {
-        margin: 0;
-      }
-      </style>
-  </head>
-  <body>
-  <h1>Hello. 
-  <li>
-  <a href="/app">Default App</a>
-  </li>
-  <li>  
-  <a href="/nbody">N-body Simulation </a>
-  </li>
-  <li>  
-  <a href="/nbody2">N-body Simulation2 </a>
-  </li>
-  
-  
-  </h1>
+  const srcPath = path.join(__dirname, 'src', 'public');
+  fs.readdir(srcPath, { withFileTypes: true }, (err, entries) => {
+    if (err) {
+      console.error('Error reading src/public directory:', err);
+      response.status(500).send('Internal Server Error');
+      return;
+    }
 
-  </body>
-  </html>
-`);
+    const folders = entries.filter(entry => entry.isDirectory());
+    const linksHtml = folders.map(folder => `
+      <li>
+        <a href="/${folder.name}">${folder.name}</a>
+      </li>
+    `).join('');
+
+    response.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title></title>
+        <style>
+        body {
+          margin: 0;
+        }
+        </style>
+    </head>
+    <body>
+    <h1>Hello.</h1>
+    <ul>
+      ${linksHtml}
+    </ul>
+    </body>
+    </html>
+    `);
+  });
 });
 
 app.get("/:appName", function (request, response) {
